@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "515254419206",
+    "project_id": "docappointment-c8669",
+    "storage_bucket": "docappointment-c8669.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:515254419206:android:c006b4fb4c0b72412fa887",
+        "android_client_info": {
+          "package_name": "com.blueWitcher.dappointment"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "515254419206-02am01atm3h61hnm0gdt9k3pmrf06pdj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw1ideTBVgPjZL6B6kuRWKJf_DX2KkNDQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "515254419206-02am01atm3h61hnm0gdt9k3pmrf06pdj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
