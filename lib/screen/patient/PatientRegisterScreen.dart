@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 import '../AuthChoiceScreen.dart';
 import '../AuthWrapper.dart';
@@ -28,7 +29,6 @@ class _PatientRegisterState extends State<PatientRegister> {
 
   @override
   Widget build(BuildContext context) {
-    print(storageService.user.email);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -186,11 +186,8 @@ class _PatientRegisterState extends State<PatientRegister> {
                                     medicalHistory: medicalHistory.text)
                                 .whenComplete(() {
                               BotToast.closeAllLoading();
-                              Utils.changeUserType(AuthType.PATIENT);
-                              Get.offUntil(
-                                  MaterialPageRoute(
-                                      builder: (c) => AuthWrapper()),
-                                  (route) => false);
+
+                              context.nextAndRemoveUntilPage(AuthWrapper());
                             });
                           } else {
                             BotToast.showText(

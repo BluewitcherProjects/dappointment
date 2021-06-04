@@ -31,13 +31,14 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    user = storageService.currentFireStoreUser;
   }
 
   _updateProfile(Map<String, dynamic> object) async {
     context.pop();
     BotToast.showLoading();
-    storageService.updateUser(object).whenComplete(() {
+    storageService
+        .updateUser(object, Utils.convertTypetoString(Utils.currentUser))
+        .whenComplete(() {
       BotToast.closeAllLoading();
     });
   }
@@ -73,7 +74,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   if (_imageUrl != null) {
                     BotToast.showLoading();
                     await storageService
-                        .updatePhoto(_imageUrl)
+                        .updatePhoto(_imageUrl,
+                            Utils.convertTypetoString(Utils.currentUser))
                         .whenComplete(() {
                       BotToast.closeAllLoading();
                     });
@@ -83,8 +85,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundColor: Utils.mainColor.withOpacity(0.1),
                   radius: 60,
                   foregroundImage: storageService
-                              .currentFireStoreUser['profilePhoto'] !=
-                          null
+                          .currentFireStoreUser['profilePhoto']
+                          .toString()
+                          .isNotEmpty
                       ? NetworkImage(
                           storageService.currentFireStoreUser['profilePhoto'])
                       : null,

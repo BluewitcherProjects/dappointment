@@ -37,6 +37,8 @@ dependencies:
   shared_preferences: ^2.0.6
   material_dialogs: ^1.0.0
   velocity_x: ^3.2.0
+  compressimage: ^0.1.1
+  date_time_format: ^2.0.1
 
 dev_dependencies:
   flutter_test:

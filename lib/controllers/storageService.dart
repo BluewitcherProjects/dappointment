@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dappointment/model/appointmentModel.dart';
+import 'package:dappointment/model/doctorListItem.dart';
+import 'package:dappointment/screen/AuthChoiceScreen.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,30 +10,21 @@ import 'package:get/get.dart';
 
 class StorageService extends GetxController {
   final db = FirebaseFirestore.instance;
-  User user;
+  User _user;
   var _fireStoreUser = <String, dynamic>{}.obs;
 
+  ///[AuthType] to determine the collectionName
   StorageService() {
     _fireStoreUser = <String, dynamic>{}.obs;
-    this.user = FirebaseAuth.instance.currentUser;
-    getUserdata(user);
+    this._user = FirebaseAuth.instance.currentUser;
+    //getUserdata(_user, authType == AuthType.DOCTOR ? "Doctors" : "Patients");
   }
 
   Map<String, dynamic> get currentFireStoreUser => _fireStoreUser.value;
 
-  User get authUserData => user;
+  User get authUserData => _user;
 
-  Future<bool> checkUserExists(User user) async {
-    bool exists = false;
-    try {
-      var doc = await db.doc("Users/${user.uid}").get();
-      return doc.exists;
-    } catch (e) {
-      print(e);
-      return false;
-    }
-  }
-
+//PATIENT-----------------------------------------------------------------------
   Future<void> createNewPatient(
       {String fullName,
       String gender,
@@ -38,16 +32,18 @@ class StorageService extends GetxController {
       String mobile,
       String medicalHistory}) async {
     Object object = {
-      "type": "patient",
       "fullName": fullName,
       "gender": gender,
       "dob": dob.toIso8601String(),
       "mobile": mobile,
-      "medicalHistory": medicalHistory
+      "medicalHistory": medicalHistory,
+      "verified": 0,
+      "profilePhoto": ""
     };
-    await createUser(object);
+    await createUser(object, "Patients");
   }
 
+//Doctor------------------------------------------------------------------------
   Future<void> createNewDoctor(
       {String fullName,
       String gender,
@@ -55,14 +51,18 @@ class StorageService extends GetxController {
       String mobile,
       String specialization}) async {
     Object object = {
-      "type": "doctor",
       "fullName": fullName,
       "gender": gender,
       "dob": dob.toIso8601String(),
       "mobile": mobile,
-      "specialization": specialization
+      "specialization": specialization,
+      "qualification": "",
+      "about": "",
+      "profilePhoto": "",
+      "documentPhoto": "",
+      "verified": 0
     };
-    await createUser(object);
+    await createUser(object, "Doctors");
   }
 
   Future<void> addAdditionalDetailsForDoctor(
@@ -74,8 +74,8 @@ class StorageService extends GetxController {
     var docUrl = '';
     final storage = FirebaseStorage.instance;
     final picPath =
-        'profilePhotos/${user.uid}.${profilePic.path.split('.').last}';
-    final docPath = 'documents/${user.uid}.${document.path.split('.').last}';
+        'profilePhotos/${_user.uid}.${profilePic.path.split('.').last}';
+    final docPath = 'documents/${_user.uid}.${document.path.split('.').last}';
     print(picPath);
     print(docPath);
     await storage.ref(picPath).putFile(profilePic).then((snapshot) async {
@@ -95,39 +95,40 @@ class StorageService extends GetxController {
       "profilePhoto": profileUrl,
       "documentPhoto": docUrl
     };
-    await updateUser(object);
+    await updateUser(object, "Doctors");
   }
+
+//------------------------------------------------------------------------------
 
   Future<void> createUser(
-    Map<String, dynamic> object,
-  ) async {
-    CollectionReference userRef = db.collection('Users');
-    await userRef.doc(user.uid).set(object);
-    await getUserdata(user);
+      Map<String, dynamic> object, String collectionName) async {
+    CollectionReference _userRef = db.collection(collectionName);
+    await _userRef.doc(_user.uid).set(object);
+    await getUserdata(_user, collectionName);
   }
 
-  Future<void> getUserdata(User u) async {
-    user = u;
-    CollectionReference userRef = db.collection('Users');
-    var snap = await userRef.doc(user.uid).get();
+  Future<String> getUserdata(User u, String collectionName) async {
+    _user = u;
+    CollectionReference _userRef = db.collection(collectionName);
+    var snap = await _userRef.doc(_user.uid).get();
     _fireStoreUser.value = snap.data();
+    return "done";
   }
 
   Future<void> updateUser(
-    Map<String, dynamic> object,
-  ) async {
-    CollectionReference userRef = db.collection('Users');
+      Map<String, dynamic> object, String collectionName) async {
+    CollectionReference _userRef = db.collection(collectionName);
 
-    await userRef.doc(user.uid).update(object);
-    await getUserdata(user);
+    await _userRef.doc(_user.uid).update(object);
+    await getUserdata(_user, collectionName);
   }
 
-  Future<void> updatePhoto(File profilePic) async {
+  Future<void> updatePhoto(File profilePic, String collectionName) async {
     var profileUrl = '';
 
     final storage = FirebaseStorage.instance;
     final picPath =
-        'profilePhotos/${user.uid}.${profilePic.path.split('.').last}';
+        'profilePhotos/${_user.uid}.${profilePic.path.split('.').last}';
     await storage.ref(picPath).putFile(profilePic).then((snapshot) async {
       if (snapshot.state == TaskState.success) {
         profileUrl = await snapshot.ref.getDownloadURL();
@@ -136,6 +137,59 @@ class StorageService extends GetxController {
     Object object = {
       "profilePhoto": profileUrl,
     };
-    await updateUser(object);
+    await updateUser(object, collectionName);
+  }
+
+  Future<bool> checkUserExists(User _user) async {
+    bool exists = false;
+    try {
+      var doc = await db.doc("Users/${_user.uid}").get();
+      return doc.exists;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  static Future<List<DoctorListItemModel>> getDoctorsList() async {
+    final db = FirebaseFirestore.instance;
+    var snap = await db.collection('Doctors').get();
+
+    var l = List<DoctorListItemModel>.from(
+        snap.docs.map((x) => DoctorListItemModel.fromJson(x.data(), x.id)));
+    return l;
+  }
+
+  static Future<List<AppointmentModel>> getAppointmentsList() async {
+    final db = FirebaseFirestore.instance;
+    var snap = await db.collection('Appointments').get();
+    print(snap.docs.first.data());
+    var l = List<AppointmentModel>.from(
+        snap.docs.map((x) => AppointmentModel.fromJson(x.data())));
+    return l;
+  }
+
+  Future<void> addAppointment(
+      DoctorListItemModel doctor, DateTime dateTime, String reason) async {
+    final db = FirebaseFirestore.instance;
+    Object data = {
+      'doctorId': doctor.docId,
+      'patientId': _user.uid,
+      'dateTime': dateTime,
+      'reason': reason,
+      'status': 'pending',
+      'doctorName': doctor.fullName,
+      'doctorPhoto': doctor.profilePhoto,
+      'doctorQualification': doctor.qualification,
+      'doctorSpecialization': doctor.specialization,
+      'doctorVerified': 0,
+      'patientVerified': _fireStoreUser['verified'],
+      'patientName': _fireStoreUser['fullName'],
+      'patientPhoto': _fireStoreUser['profilePhoto'],
+      'patientMedicalHistory': _fireStoreUser['medicalHistory']
+    };
+    var doc = await db.collection("Appointments").add(data);
+    var a = await doc.get();
+    print(a.data());
   }
 }

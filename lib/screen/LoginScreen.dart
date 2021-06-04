@@ -27,6 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _submiting = false;
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    Utils.changeUserType(widget.authType);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,14 +176,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                           .then((value) {
                                         BotToast.closeAllLoading();
                                         if (value != null) {
-                                          Get.put(StorageService(),
+                                          var service = Get.put(
+                                              StorageService(),
                                               permanent: true);
-                                          Utils.changeUserType(widget.authType);
-                                          Get.offUntil(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      AuthWrapper()),
-                                              (route) => false);
+                                          service
+                                              .getUserdata(
+                                                  value,
+                                                  Utils.convertTypetoString(
+                                                      Utils.currentUser))
+                                              .whenComplete(() {
+                                            Get.offUntil(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        AuthWrapper()),
+                                                (route) => false);
+                                          });
                                         }
                                       });
                                     } else {

@@ -20,7 +20,7 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print(storageService.currentFireStoreUser.toString());
-    print(storageService.user.uid.toString());
+    // print(storageService.user.uid.toString());
     return Drawer(
         child: Obx(
       () => SafeArea(
@@ -30,11 +30,13 @@ class CustomDrawer extends StatelessWidget {
             CircleAvatar(
               backgroundColor: Utils.mainColor.withOpacity(0.1),
               radius: 60,
-              foregroundImage:
-                  storageService.currentFireStoreUser['profilePhoto'] != null
-                      ? NetworkImage(
-                          storageService.currentFireStoreUser['profilePhoto'])
-                      : null,
+              foregroundImage: storageService
+                      .currentFireStoreUser['profilePhoto']
+                      .toString()
+                      .isNotEmpty
+                  ? NetworkImage(
+                      storageService.currentFireStoreUser['profilePhoto'])
+                  : null,
               child: Icon(
                 EvaIcons.personOutline,
                 color: blue,

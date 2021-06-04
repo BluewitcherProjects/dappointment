@@ -1,4 +1,5 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:dappointment/controllers/Utils.dart';
 import 'package:dappointment/controllers/authService.dart';
 import 'package:dappointment/controllers/storageService.dart';
 import 'package:dappointment/screen/doctor/DoctorRegisterFirstScreen.dart';
@@ -82,19 +83,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 .then((value) {
                               BotToast.closeAllLoading();
                               if (value != null) {
-                                Get.put(StorageService(), permanent: true);
-
-                                widget.authType == AuthType.PATIENT
-                                    ? Get.offUntil(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                PatientRegister()),
-                                        (route) => false)
-                                    : Get.offUntil(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                DoctorRegisterFirst()),
-                                        (route) => false);
+                                var service =
+                                    Get.put(StorageService(), permanent: true);
+                                service
+                                    .getUserdata(
+                                        value,
+                                        Utils.convertTypetoString(
+                                            Utils.currentUser))
+                                    .whenComplete(() {
+                                  widget.authType == AuthType.PATIENT
+                                      ? Get.offUntil(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PatientRegister()),
+                                          (route) => false)
+                                      : Get.offUntil(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DoctorRegisterFirst()),
+                                          (route) => false);
+                                });
                               }
                             });
                           } else {

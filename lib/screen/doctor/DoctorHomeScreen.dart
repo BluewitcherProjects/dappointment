@@ -1,7 +1,7 @@
 import 'package:dappointment/controllers/Utils.dart';
 import 'package:dappointment/controllers/storageService.dart';
-import 'package:dappointment/screen/doctor/DoctorAppointment.dart';
-import 'package:dappointment/screen/doctor/DoctorsList.dart';
+import 'package:dappointment/screen/patient/DoctorAppointment.dart';
+import 'package:dappointment/screen/patient/DoctorsList.dart';
 import 'package:dappointment/model/patientModel.dart';
 import 'package:dappointment/widget/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,12 +23,12 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   @override
   Widget build(BuildContext context) {
     print(storageService.currentFireStoreUser.toString());
-    print(storageService.user.uid.toString());
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Doctors"),
+          title: Text("Appointments"),
           backgroundColor: Utils.mainColor,
           bottom: TabBar(
             indicator: BoxDecoration(
@@ -36,15 +36,15 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
             ),
             tabs: [
               Tab(
-                child: Text("Doctors"),
+                child: Text("Pending"),
               ),
               Tab(
-                child: Text("Appointment"),
+                child: Text("Approved"),
               ),
             ],
           ),
         ),
-        body: TabBarView(children: [DoctorList(), DoctorAppointment()]),
+        // body: TabBarView(children: [DoctorList(), DoctorAppointment()]),
         drawer: CustomDrawer(),
       ),
     );

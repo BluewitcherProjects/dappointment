@@ -92,6 +92,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0"
+  compressimage:
+    dependency: "direct main"
+    description:
+      name: compressimage
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.1"
   crypto:
     dependency: transitive
     description:
@@ -113,6 +120,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.2"
+  date_time_format:
+    dependency: "direct main"
+    description:
+      name: date_time_format
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   eva_icons_flutter:
     dependency: "direct main"
     description:

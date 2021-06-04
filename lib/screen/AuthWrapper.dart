@@ -19,15 +19,28 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
-    if (FirebaseAuth.instance.currentUser != null) {
-      Get.put(StorageService(), permanent: true);
+    var user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
       return FutureBuilder<AuthType>(
         future: Utils.getUserType(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return snapshot.data == AuthType.DOCTOR
-                ? DoctorHomeScreen()
-                : PatientHomeScreen();
+            var service = Get.put(StorageService(), permanent: true);
+            return FutureBuilder(
+              future: service.getUserdata(user,
+                  snapshot.data == AuthType.DOCTOR ? "Doctors" : "Patients"),
+              builder: (BuildContext context, AsyncSnapshot snap) {
+                if (snap.hasData) {
+                  return snapshot.data == AuthType.DOCTOR
+                      ? DoctorHomeScreen()
+                      : PatientHomeScreen();
+                }
+                return Container(
+                  color: Colors.white,
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              },
+            );
           }
           return Container();
         },

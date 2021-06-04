@@ -11,6 +11,7 @@ import 'package:date_format/date_format.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:velocity_x/velocity_x.dart';
+import 'package:compressimage/compressimage.dart';
 
 class DoctorRegisterSecond extends StatefulWidget {
   @override
@@ -126,7 +127,7 @@ class _DoctorRegisterSecondState extends State<DoctorRegisterSecond> {
                                     document: documentPic)
                                 .whenComplete(() {
                               BotToast.closeAllLoading();
-                              Utils.changeUserType(AuthType.DOCTOR);
+
                               Get.offUntil(
                                   MaterialPageRoute(
                                       builder: (c) => AuthWrapper()),
@@ -160,6 +161,12 @@ class _DoctorRegisterSecondState extends State<DoctorRegisterSecond> {
         print('No image selected.');
       }
     });
+    print("FILE SIZE BEFORE: " + _image.lengthSync().toString());
+    await CompressImage.compress(
+        imageSrc: _image.path,
+        desiredQuality: 80); //desiredQuality ranges from 0 to 100
+    print("FILE SIZE  AFTER: " + _image.lengthSync().toString());
+    setState(() {});
     return _image;
   }
 
