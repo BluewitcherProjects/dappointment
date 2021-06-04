@@ -2,6 +2,7 @@ import 'package:dappointment/controllers/Utils.dart';
 import 'package:dappointment/controllers/storageService.dart';
 import 'package:dappointment/screen/doctor/DoctorAppointment.dart';
 import 'package:dappointment/screen/doctor/DoctorsList.dart';
+import 'package:dappointment/model/patientModel.dart';
 import 'package:dappointment/widget/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -48,4 +49,6 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
       ),
     );
   }
+
+  Future<PatientModel> _getPatientList() {}
 }
