@@ -1,5 +1,7 @@
 import 'package:dappointment/controllers/Utils.dart';
 import 'package:dappointment/controllers/storageService.dart';
+import 'package:dappointment/screen/doctor/DoctorAppointment.dart';
+import 'package:dappointment/screen/doctor/DoctorsList.dart';
 import 'package:dappointment/widget/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +23,29 @@ class _DoctorHomeScreenState extends State<DoctorHomeScreen> {
   Widget build(BuildContext context) {
     print(storageService.currentFireStoreUser.toString());
     print(storageService.user.uid.toString());
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Doctor Home"),
-        backgroundColor: Utils.mainColor,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Doctors"),
+          backgroundColor: Utils.mainColor,
+          bottom: TabBar(
+            indicator: BoxDecoration(
+              border: Border(bottom: BorderSide(width: 3, color: Colors.white)),
+            ),
+            tabs: [
+              Tab(
+                child: Text("Doctors"),
+              ),
+              Tab(
+                child: Text("Appointment"),
+              ),
+            ],
+          ),
+        ),
+        body: TabBarView(children: [DoctorList(), DoctorAppointment()]),
+        drawer: CustomDrawer(),
       ),
-      drawer: CustomDrawer(),
     );
   }
 }
