@@ -9,7 +9,7 @@ class AuthChoiceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -28,8 +28,9 @@ class AuthChoiceScreen extends StatelessWidget {
                       primary: Colors.purple,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10))),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 40, horizontal: 100)),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 40,
+                      )),
                   onPressed: () {
                     Navigator.push(
                         context,
@@ -39,9 +40,12 @@ class AuthChoiceScreen extends StatelessWidget {
                           ),
                         ));
                   },
-                  child: Text(
-                    "Patient",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+                  child: Center(
+                    child: Text(
+                      "Patient",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+                    ),
                   )),
               SizedBox(
                 height: 20,
@@ -50,8 +54,9 @@ class AuthChoiceScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10))),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 40, horizontal: 100)),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 40,
+                      )),
                   onPressed: () {
                     Get.to(
                       () => LoginScreen(
@@ -59,9 +64,12 @@ class AuthChoiceScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Text(
-                    "Doctor",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+                  child: Center(
+                    child: Text(
+                      "Doctor",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
+                    ),
                   )),
             ],
           ),

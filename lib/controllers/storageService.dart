@@ -166,6 +166,7 @@ class StorageService extends GetxController {
     print(snap.docs.first.data());
     var l = List<AppointmentModel>.from(
         snap.docs.map((x) => AppointmentModel.fromJson(x.data())));
+    l.sort((b, a) => a.dateTime.compareTo(b.dateTime));
     return l;
   }
 
