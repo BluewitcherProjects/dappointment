@@ -34,7 +34,7 @@ class Utils {
       case 'pending':
         return Colors.orange[400];
       case 'approved':
-        return Colors.blue[400];
+        return Colors.green[400];
       case 'cancelled':
         return Colors.red[400];
       case 'completed':

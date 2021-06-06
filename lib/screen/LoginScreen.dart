@@ -126,6 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: pass,
                               keyboardType: TextInputType.text,
                               style: TextStyle(fontSize: 15),
+                              obscureText: true,
                               decoration: InputDecoration(
                                 hintText: "Password",
                                 contentPadding: EdgeInsets.all(18),
