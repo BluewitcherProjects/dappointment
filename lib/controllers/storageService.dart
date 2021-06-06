@@ -163,10 +163,11 @@ class StorageService extends GetxController {
   static Future<List<AppointmentModel>> getAppointmentsList() async {
     final db = FirebaseFirestore.instance;
     var snap = await db.collection('Appointments').get();
-    print(snap.docs.first.data());
+
     var l = List<AppointmentModel>.from(
-        snap.docs.map((x) => AppointmentModel.fromJson(x.data())));
+        snap.docs.map((x) => AppointmentModel.fromJson(x.data(), uid: x.id)));
     l.sort((b, a) => a.dateTime.compareTo(b.dateTime));
+    print(l.length);
     return l;
   }
 
@@ -192,5 +193,21 @@ class StorageService extends GetxController {
     var doc = await db.collection("Appointments").add(data);
     var a = await doc.get();
     print(a.data());
+  }
+
+  Future<void> updateAppointment(AppointmentModel appointment) async {
+    var doc = await db
+        .collection("Appointments")
+        .doc(appointment.id)
+        .update(appointment.toJson());
+  }
+
+  static Future<Object> getUserDetails(
+      String uid, String collectionName) async {
+    final db = FirebaseFirestore.instance;
+    CollectionReference _userRef = db.collection(collectionName);
+    var snap = await _userRef.doc(uid).get();
+
+    return snap.data();
   }
 }

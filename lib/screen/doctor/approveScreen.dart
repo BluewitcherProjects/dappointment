@@ -1,52 +1,53 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:dappointment/controllers/Utils.dart';
 import 'package:dappointment/controllers/storageService.dart';
-import 'package:dappointment/model/doctorListItem.dart';
-import 'package:dappointment/screen/doctor/doctorDetails.dart';
+import 'package:dappointment/model/appointmentModel.dart';
+import 'package:dappointment/screen/patient/patientDetails.dart';
 import 'package:dappointment/widget/styles.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:date_time_format/date_time_format.dart';
 import 'package:velocity_x/velocity_x.dart';
+import 'package:date_time_format/date_time_format.dart';
 
-class ScheduleScreen extends StatefulWidget {
-  final DoctorListItemModel doctor;
-  ScheduleScreen({Key key, this.doctor}) : super(key: key);
+class ApproveScreen extends StatefulWidget {
+  final AppointmentModel appointment;
+  ApproveScreen({Key key, this.appointment}) : super(key: key);
 
   @override
-  _ScheduleScreenState createState() => _ScheduleScreenState();
+  _ApproveScreenState createState() => _ApproveScreenState();
 }
 
-class _ScheduleScreenState extends State<ScheduleScreen> {
+class _ApproveScreenState extends State<ApproveScreen> {
   DateTime dateTime;
+  AppointmentModel appointment;
   @override
   void initState() {
     super.initState();
-    dateTime = DateTime.now();
+    dateTime = widget.appointment.dateTime;
+    appointment = widget.appointment;
   }
 
   StorageService storageService = Get.find();
-  TextEditingController _controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    print(widget.doctor.docId);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Utils.mainColor,
-        title: Text("Schedule Appointment"),
+        title: Text("Appointment Details"),
       ),
       body: ListView(
         children: [
-          _doctorListItem(widget.doctor),
+          _appointmentListItem(widget.appointment),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Select Date",
+                  "Change Date",
                   style: subtitle1.copyWith(
                       fontWeight: FontWeight.w500, fontSize: 18),
                 ),
@@ -96,7 +97,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Select Time",
+                  "Change Time",
                   style: subtitle1.copyWith(
                       fontWeight: FontWeight.w500, fontSize: 18),
                 ),
@@ -146,15 +147,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               .make()
               .px(16),
           10.heightBox,
-          VxTextField(
-            controller: _controller,
-            borderType: VxTextFieldBorderType.roundLine,
-            borderRadius: 12,
-            fillColor: Colors.white,
-            borderColor: Utils.mainColor,
-            hint: "Reason For the appointment",
+          Text(
+            appointment.reason,
             style: subtitle1.copyWith(fontSize: 16),
-            maxLine: 5,
           ).px(16),
           30.heightBox,
           Container(
@@ -162,7 +157,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             color: Utils.mainColor,
             child: Center(
               child: Text(
-                "Request for appointment",
+                "Approve Appointment",
                 style: GoogleFonts.ubuntu(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -170,11 +165,40 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
             ),
           ).cornerRadius(12).px(16).onTap(() async {
-            if (_controller.text.isNotEmpty &&
-                dateTime.isAfter(DateTime.now())) {
+            if (dateTime.isAfter(DateTime.now())) {
+              appointment.dateTime = dateTime;
+              appointment.status = "approved";
               BotToast.showLoading();
               await storageService
-                  .addAppointment(widget.doctor, dateTime, _controller.text)
+                  .updateAppointment(appointment)
+                  .whenComplete(() {
+                BotToast.closeAllLoading();
+                context.pop();
+              });
+            } else {
+              BotToast.showText(text: "Check all the fields.");
+            }
+          }),
+          18.heightBox,
+          Container(
+            height: 50,
+            color: Colors.red[400],
+            child: Center(
+              child: Text(
+                "Cancel Appointment",
+                style: GoogleFonts.ubuntu(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white),
+              ),
+            ),
+          ).cornerRadius(12).px(16).onTap(() async {
+            if (dateTime.isAfter(DateTime.now())) {
+              appointment.dateTime = dateTime;
+              appointment.status = "cancelled";
+              BotToast.showLoading();
+              await storageService
+                  .updateAppointment(appointment)
                   .whenComplete(() {
                 BotToast.closeAllLoading();
                 context.pop();
@@ -188,21 +212,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  _doctorListItem(DoctorListItemModel item) {
+  _appointmentListItem(AppointmentModel appointment) {
     return ListTile(
       title: Text(
-        item.fullName,
+        appointment.patientName,
         style: headline.copyWith(fontSize: 16, fontWeight: FontWeight.w500),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [Text(item.specialization), Text(item.qualification ?? "")],
+        children: [
+          Text(appointment.patientMedicalHistory),
+          Text(appointment.dateTime.format('d-M-Y h:i A'))
+        ],
       ),
       leading: CircleAvatar(
         radius: 30,
         backgroundColor: Utils.mainColor.withOpacity(0.1),
-        foregroundImage:
-            item.profilePhoto != null ? NetworkImage(item.profilePhoto) : null,
+        foregroundImage: appointment.patientPhoto != null &&
+                appointment.patientPhoto.isNotEmpty
+            ? NetworkImage(appointment.patientPhoto)
+            : null,
         child: Icon(
           EvaIcons.personOutline,
           color: Utils.mainColor,
@@ -212,8 +241,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       isThreeLine: true,
       trailing: GestureDetector(
         onTap: () {
-          context.push((context) => DoctorDetails(
-                uid: item.docId,
+          context.push((context) => PatientDetails(
+                uid: appointment.patientId,
               ));
         },
         child: Container(

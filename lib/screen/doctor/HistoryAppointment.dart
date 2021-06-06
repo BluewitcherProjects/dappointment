@@ -2,22 +2,23 @@ import 'package:dappointment/controllers/Utils.dart';
 import 'package:dappointment/controllers/storageService.dart';
 import 'package:dappointment/model/appointmentModel.dart';
 import 'package:dappointment/screen/appointmentDetails.dart';
+import 'package:dappointment/screen/doctor/approveScreen.dart';
 import 'package:dappointment/widget/styles.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:date_time_format/date_time_format.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:date_time_format/date_time_format.dart';
 import 'package:velocity_x/velocity_x.dart';
 
-class DoctorAppointment extends StatefulWidget {
-  const DoctorAppointment({Key key}) : super(key: key);
+class HistoryAppointment extends StatefulWidget {
+  HistoryAppointment({Key key}) : super(key: key);
 
   @override
-  _DoctorAppointmentState createState() => _DoctorAppointmentState();
+  _HistoryAppointmentState createState() => _HistoryAppointmentState();
 }
 
-class _DoctorAppointmentState extends State<DoctorAppointment> {
+class _HistoryAppointmentState extends State<HistoryAppointment> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,17 +29,18 @@ class _DoctorAppointmentState extends State<DoctorAppointment> {
             List<AppointmentModel> d = snapshot.data;
             List<AppointmentModel> data = [];
             var userId = FirebaseAuth.instance.currentUser.uid;
-            print(userId);
+
             d.forEach((element) {
-              if (element.patientId == userId) {
+              if (element.doctorId == userId && element.status != 'pending') {
                 data.add(element);
               }
             });
+
             if (data.isEmpty)
               return Center(
                 child: Text("No Appointments found"),
               );
-            print(data.first);
+            // print(data.first);
             return ListView.separated(
               itemCount: data.length,
               itemBuilder: (context, index) =>
@@ -63,27 +65,34 @@ class _DoctorAppointmentState extends State<DoctorAppointment> {
 
   _appointmentListItem(AppointmentModel appointment) {
     return ListTile(
-      onTap: () {
-        context.push((context) => AppointmentDetails(
-              appointment: appointment,
-            ));
-      },
       title: Text(
-        appointment.doctorName,
+        appointment.patientName,
         style: headline.copyWith(fontSize: 16, fontWeight: FontWeight.w500),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(appointment.doctorSpecialization),
-          Text(appointment.dateTime.format('d-M-Y h:i A'))
+          Text(appointment.dateTime.format('d-M-Y h:i A')),
+          2.heightBox,
+          appointment.status.text.white
+              .textStyle(subtitle1)
+              .size(14)
+              .heightSnug
+              .make()
+              .px(10)
+              .py(4)
+              .box
+              .color(Utils.getColorFromStatus(appointment.status))
+              .make()
+              .cornerRadius(10)
         ],
       ),
       leading: CircleAvatar(
         radius: 30,
         backgroundColor: Utils.mainColor.withOpacity(0.1),
-        foregroundImage: appointment.doctorPhoto != null
-            ? NetworkImage(appointment.doctorPhoto)
+        foregroundImage: appointment.patientPhoto != null &&
+                appointment.patientPhoto.isNotEmpty
+            ? NetworkImage(appointment.patientPhoto)
             : null,
         child: Icon(
           EvaIcons.personOutline,
@@ -92,18 +101,25 @@ class _DoctorAppointmentState extends State<DoctorAppointment> {
         ),
       ),
       isThreeLine: true,
-      trailing: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Utils.getColorFromStatus(appointment.status).withOpacity(0.15),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Text(
-          appointment.status,
-          style: GoogleFonts.ubuntu(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Utils.getColorFromStatus(appointment.status)),
+      trailing: GestureDetector(
+        onTap: () {
+          context.push((context) => AppointmentDetails(
+                appointment: appointment,
+              ));
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Utils.mainColor.withOpacity(0.15),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Text(
+            "Details",
+            style: GoogleFonts.ubuntu(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: Utils.mainColor),
+          ),
         ),
       ),
     );

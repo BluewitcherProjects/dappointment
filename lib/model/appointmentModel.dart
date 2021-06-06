@@ -15,6 +15,7 @@ String appointmentModelToJson(List<AppointmentModel> data) =>
 
 class AppointmentModel {
   AppointmentModel({
+    this.id,
     this.doctorId,
     this.patientId,
     this.dateTime,
@@ -30,7 +31,7 @@ class AppointmentModel {
     this.patientPhoto,
     this.patientMedicalHistory,
   });
-
+  String id;
   String doctorId;
   String patientId;
   DateTime dateTime;
@@ -46,8 +47,10 @@ class AppointmentModel {
   String patientPhoto;
   String patientMedicalHistory;
 
-  factory AppointmentModel.fromJson(Map<String, dynamic> json) =>
+  factory AppointmentModel.fromJson(Map<String, dynamic> json,
+          {String uid = ''}) =>
       AppointmentModel(
+        id: uid,
         doctorId: json["doctorId"],
         patientId: json["patientId"],
         dateTime: json["dateTime"].toDate(),
@@ -67,7 +70,7 @@ class AppointmentModel {
   Map<String, dynamic> toJson() => {
         "doctorId": doctorId,
         "patientId": patientId,
-        "dateTime": dateTime.toIso8601String(),
+        "dateTime": Timestamp.fromDate(dateTime),
         "reason": reason,
         "status": status,
         "doctorName": doctorName,
