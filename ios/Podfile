@@ -1,7 +1,7 @@
 # Uncomment the next line to define a global platform for your project
  platform :ios, '12.0'
 
-target 'MyApp' do
+target 'dappointment' do
   use_frameworks!
   pod 'Alamofire', '~> 3.0'
 end
